@@ -16,7 +16,7 @@ model:
   # number of groups in the groupnorm
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: true
+  final_sigmoid: false
 # loss function to be used during training
 loss:
   name: BCEDiceLoss
@@ -55,13 +55,13 @@ trainer:
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 100
+  validate_after_iters: 5
   # how many iterations between tensorboard logging
   log_after_iters: 5
   # max number of epochs
   max_num_epochs: 10
   # max number of iterations
-  max_num_iterations: 1500
+  max_num_iterations: 15
 # Configure training and validation loaders
 loaders:
   # how many subprocesses to use for data loading
@@ -82,7 +82,7 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [10, 20, 20]
+      stride_shape: [16, 16, 16]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -136,7 +136,7 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [10, 20, 20]
+      stride_shape: [16, 16, 16]
       # minimum volume of the lazbels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
