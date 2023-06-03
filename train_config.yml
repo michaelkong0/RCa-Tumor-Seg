@@ -137,9 +137,9 @@ loaders:
       patch_shape: [64, 64, 64]
       # train stride between patches
       stride_shape: [16, 16, 16]
-      # minimum volume of the lazbels in the patch
+      # minimum volume of the labels in the patch
       threshold: 0.6
-      # probability of accepting patches which do not fulfil the threshold criterion
+      # probability of accepting patches which do not fulfill the threshold criterion
       slack_acceptance: 1
 
     # data augmentation
