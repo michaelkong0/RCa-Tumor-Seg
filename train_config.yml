@@ -82,11 +82,11 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [32, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 1
+      slack_acceptance: .01
 
     transformer:
       raw:
@@ -136,11 +136,11 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [32, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfill the threshold criterion
-      slack_acceptance: 1
+      slack_acceptance: .01
 
     # data augmentation
     transformer:
