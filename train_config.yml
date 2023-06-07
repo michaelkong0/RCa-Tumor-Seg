@@ -26,9 +26,9 @@ loss:
   skip_last_target: true
 optimizer:
   # initial learning rate
-  learning_rate: 0.0002
+  learning_rate: 0.003
   # weight decay
-  weight_decay: 0.00001
+  weight_decay: 0.0001
 # evaluation metric
 eval_metric:
   # use AdaptedRandError metric
@@ -61,7 +61,7 @@ trainer:
   # max number of epochs
   max_num_epochs: 10
   # max number of iterations
-  max_num_iterations: 15
+  max_num_iterations: 20
 # Configure training and validation loaders
 loaders:
   # how many subprocesses to use for data loading
@@ -80,32 +80,30 @@ loaders:
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [64, 64, 64]
+      patch_shape: [192, 180, 180]
       # train stride between patches
       stride_shape: [32, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: .01
+      slack_acceptance: 1
 
     transformer:
       raw:
-        - name: Standardize
+        #- name: Standardize
         - name: RandomFlip
         - name: RandomRotate90
         - name: RandomRotate
           # rotate only in ZY plane due to anisotropy
           axes: [[2, 1]]
-          angle_spectrum: 45
+          angle_spectrum: 30
           mode: reflect
-        - name: ElasticDeformation
-          spline_order: 3
         - name: GaussianBlur3D
-          execution_probability: 0.5
+          execution_probability: 0.1
         - name: AdditiveGaussianNoise
-          execution_probability: 0.2
+          execution_probability: 0.05
         - name: AdditivePoissonNoise
-          execution_probability: 0.2
+          execution_probability: 0.05
         - name: ToTensor
           expand_dims: true
       label:
@@ -114,10 +112,8 @@ loaders:
         - name: RandomRotate
           # rotate only in ZY plane due to anisotropy
           axes: [[2, 1]]
-          angle_spectrum: 45
+          angle_spectrum: 30
           mode: reflect
-        - name: ElasticDeformation
-          spline_order: 0
         - name: StandardLabelToBoundary
           # append original ground truth labels to the last channel (to be able to compute the eval metric)
           append_label: true
@@ -134,18 +130,17 @@ loaders:
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [64, 64, 64]
+      patch_shape: [192, 180, 180]
       # train stride between patches
       stride_shape: [32, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfill the threshold criterion
-      slack_acceptance: .01
+      slack_acceptance: 1
 
     # data augmentation
     transformer:
       raw:
-        - name: Standardize
         - name: ToTensor
           expand_dims: true
       label:
