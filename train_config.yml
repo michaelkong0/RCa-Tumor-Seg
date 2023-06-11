@@ -10,11 +10,11 @@ model:
   # number of output channels
   out_channels: 1
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
-  layer_order: gcr
+  layer_order: crg
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 16
   # number of groups in the groupnorm
-  num_groups: 8
+  num_groups: 4
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: false
 # loss function to be used during training
@@ -32,7 +32,7 @@ optimizer:
 # evaluation metric
 eval_metric:
   # use AdaptedRandError metric
-  name: BoundaryAdaptedRandError
+  name: BlobsAveragePrecision
   # probability maps threshold
   threshold: 0.4
   # use the last target channel to compute the metric
@@ -43,8 +43,8 @@ lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
   mode: min
-  factor: 0.5
-  patience: 30
+  factor: 0.05
+  patience: 300
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: False
@@ -55,13 +55,13 @@ trainer:
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 5
+  validate_after_iters: 25
   # how many iterations between tensorboard logging
-  log_after_iters: 5
+  log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 10
+  max_num_epochs: 3
   # max number of iterations
-  max_num_iterations: 20
+  max_num_iterations: 2000
 # Configure training and validation loaders
 loaders:
   # how many subprocesses to use for data loading
@@ -80,17 +80,17 @@ loaders:
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [192, 180, 180]
+      patch_shape: [24, 180, 180]
       # train stride between patches
-      stride_shape: [32, 32, 32]
+      stride_shape: [12, 0, 0]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 1
+      slack_acceptance: .9
 
     transformer:
       raw:
-        #- name: Standardize
+        - name: Standardize
         - name: RandomFlip
         - name: RandomRotate90
         - name: RandomRotate
@@ -130,13 +130,13 @@ loaders:
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [192, 180, 180]
+      patch_shape: [24, 180, 180]
       # train stride between patches
-      stride_shape: [32, 32, 32]
+      stride_shape: [12, 0, 0]
       # minimum volume of the labels in the patch
       threshold: 0.6
       # probability of accepting patches which do not fulfill the threshold criterion
-      slack_acceptance: 1
+      slack_acceptance: .9
 
     # data augmentation
     transformer:

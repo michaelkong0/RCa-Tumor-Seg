@@ -7,11 +7,11 @@ model:
   # number of output channels
   out_channels: 1
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
-  layer_order: gcr
+  layer_order: crg
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 16
   # number of groups in the groupnorm
-  num_groups: 8
+  num_groups: 4
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: false
 predictor:
