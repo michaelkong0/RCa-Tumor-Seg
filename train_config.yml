@@ -1,8 +1,3 @@
-# Sample configuration file for training a 3D U-Net on a task of predicting the boundaries in 3D stack of the Arabidopsis
-# ovules acquired with the confocal microscope. Training done with a combination of Binary Cross-Entropy and DiceLoss.
-# Download train data from: https://osf.io/x9yns/
-# Download validation data from: https://osf.io/xp5uf/
-# Download test data from: https://osf.io/8jz7e/
 model:
   name: UNet3D
   # number of input channels to the model
@@ -12,42 +7,43 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: crg
   # initial number of feature maps
-  f_maps: 16
+  f_maps: 32
   # number of groups in the groupnorm
-  num_groups: 4
+  num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: false
+  final_sigmoid: True
+
+  is_segmentation: true
 # loss function to be used during training
 loss:
-  name: BCEDiceLoss
+  name: DiceLoss
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
-  skip_last_target: true
+  skip_last_target: false
 optimizer:
   # initial learning rate
-  learning_rate: 0.003
-  # weight decay
+  learning_rate: 0.01
+  # weight deca
   weight_decay: 0.0001
 # evaluation metric
 eval_metric:
   # use AdaptedRandError metric
-  name: BlobsAveragePrecision
+  name: DiceCoefficient
   # probability maps threshold
-  threshold: 0.4
+  threshold: 0.1
   # use the last target channel to compute the metric
-  use_last_target: true
+  use_last_target: false
   # use only the first channel for computing the metric
-  use_first_input: true
+  use_first_input: false
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
-  mode: min
+  mode: max
   factor: 0.05
-  patience: 300
+  patience: 30
 trainer:
-  # model with lower eval score is considered better
-  eval_score_higher_is_better: False
+  eval_score_higher_is_better: True
   # path to the checkpoint directory
   checkpoint_dir: C:\Users\theev\OneDrive\Documents\LAB\Code\3DUNetTest\Checkpoint
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
@@ -55,14 +51,15 @@ trainer:
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 25
+  validate_after_iters: 150
   # how many iterations between tensorboard logging
-  log_after_iters: 10
+  log_after_iters: 75
   # max number of epochs
-  max_num_epochs: 3
+  max_num_epochs: 300
   # max number of iterations
-  max_num_iterations: 2000
+  max_num_iterations: 3000
 # Configure training and validation loaders
+
 loaders:
   # how many subprocesses to use for data loading
   num_workers: 8
@@ -78,15 +75,11 @@ loaders:
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
-      name: FilterSliceBuilder
+      name: SliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [24, 180, 180]
+      patch_shape: [24, 120, 120]
       # train stride between patches
-      stride_shape: [12, 0, 0]
-      # minimum volume of the labels in the patch
-      threshold: 0.6
-      # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: .9
+      stride_shape: [12, 60, 60]
 
     transformer:
       raw:
@@ -99,11 +92,11 @@ loaders:
           angle_spectrum: 30
           mode: reflect
         - name: GaussianBlur3D
-          execution_probability: 0.1
+          execution_probability: 0.01
         - name: AdditiveGaussianNoise
-          execution_probability: 0.05
+          execution_probability: 0.005
         - name: AdditivePoissonNoise
-          execution_probability: 0.05
+          execution_probability: 0.005
         - name: ToTensor
           expand_dims: true
       label:
@@ -114,11 +107,12 @@ loaders:
           axes: [[2, 1]]
           angle_spectrum: 30
           mode: reflect
-        - name: StandardLabelToBoundary
-          # append original ground truth labels to the last channel (to be able to compute the eval metric)
-          append_label: true
         - name: ToTensor
           expand_dims: false
+        - name: Relabel
+        - name: BlobsToMask
+          append_label: false
+          boundary: false
 
   # configuration of the val loader
   val:
@@ -128,23 +122,22 @@ loaders:
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
-      name: FilterSliceBuilder
+      name: SliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [24, 180, 180]
+      patch_shape: [24, 120, 120]
       # train stride between patches
-      stride_shape: [12, 0, 0]
-      # minimum volume of the labels in the patch
-      threshold: 0.6
-      # probability of accepting patches which do not fulfill the threshold criterion
-      slack_acceptance: .9
+      stride_shape: [12, 60, 60]
 
     # data augmentation
     transformer:
       raw:
+        - name: Standardize
         - name: ToTensor
           expand_dims: true
       label:
-        - name: StandardLabelToBoundary
-          append_label: true
         - name: ToTensor
           expand_dims: false
+        - name: Relabel
+        - name: BlobsToMask
+          append_label: false
+          boundary: false

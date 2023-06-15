@@ -1,5 +1,4 @@
-# Download test data from: https://osf.io/8jz7e/
-model_path: C:\Users\theev\OneDrive\Documents\LAB\Code\3DUNetTest\Checkpoint\best_checkpoint.pytorch
+model_path: C:\Users\theev\OneDrive\Documents\LAB\Code\3DUNetTest\Checkpoint\last_checkpoint.pytorch
 model:
   name: UNet3D
   # number of input channels to the model
@@ -9,11 +8,12 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: crg
   # initial number of feature maps
-  f_maps: 16
+  f_maps: 32
   # number of groups in the groupnorm
-  num_groups: 4
+  num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: false
+  final_sigmoid: True
+  is_segmentation: true
 predictor:
   name: 'StandardPredictor'
 loaders:
@@ -30,8 +30,9 @@ loaders:
 
     slice_builder:
       name: SliceBuilder
-      patch_shape: [192, 180, 180]
-      stride_shape: [32, 32, 32]
+      patch_shape: [24, 120, 120]
+      # train stride between patches
+      stride_shape: [12, 60, 60]
 
     transformer:
       raw:
