@@ -1,3 +1,4 @@
+import nnunetv2
 from nnunetv2.paths import nnUNet_results, nnUNet_raw
 import torch
 from batchgenerators.utilities.file_and_folder_operations import join

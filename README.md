@@ -24,3 +24,6 @@ Rudimentary efforts to calcuate some distance metrics
 transition to nnUNet implementation, same as UNetTest, but instead testing the functionality of the nnUNet
 See: https://github.com/MIC-DKFZ/nnUNet
 Also, method of data storage is much different, see code.
+
+#### hpc_files
+Folder with files relevant to HPC usage
