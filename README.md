@@ -27,3 +27,8 @@ Also, method of data storage is much different, see code.
 
 #### hpc_files
 Folder with files relevant to HPC usage
+
+
+#### visualization.ipnyb
+Write code for generation of gifs. 
+Also general production of plots
